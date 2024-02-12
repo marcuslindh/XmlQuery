@@ -180,6 +180,7 @@ namespace Tests
 
 
             Assert.Equal(50, root.GetAttributValueAs<int>("count"));
+            Assert.Equal("markdown", root.GetAttributValueAs<string>("type"));
 
 
 

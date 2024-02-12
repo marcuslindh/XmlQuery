@@ -307,6 +307,13 @@ namespace XmlQuery.Core
                                 groupToken.Tokens.Add(tokens[pos]);
                             }
                         }
+                        else if (tokens[pos + 1].type == QueryEngineToken.TokenType.TagName)
+                        {
+                            pos++;
+                            token = tokens[pos];
+
+                            groupToken.Tokens.Add(token);
+                        }
                     }
 
                 }

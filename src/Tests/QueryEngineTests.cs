@@ -10,6 +10,7 @@ namespace Tests
         [InlineData("rss", 1)]
         [InlineData("item", 21)]
         [InlineData("item > title", 21)]
+        [InlineData("item title", 21)]
         [InlineData("item > guid[isPermaLink=\"false\"]", 21)]
         public void GetElementsByName(string tagName, int count)
         {
