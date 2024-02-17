@@ -368,6 +368,21 @@ namespace XmlQuery
 
                         tokenGroups.Add(tokenGroup);
                     }
+                    else if (token.type == Token.TokenType.StartCData)
+                    {
+                        tokenGroup = new TokenGroup();
+                        tokenGroup.Type = TokenGroup.TokenGroupType.Value;
+
+                        pos++;
+
+                        while (pos < tokens.Count && tokens[pos].type != Token.TokenType.EndCData)
+                        {
+                            tokenGroup.Tokens.Add(tokens[pos]);
+                            pos++;
+                        }
+
+                        tokenGroups.Add(tokenGroup);
+                    }
                     else
                     {
                         tokenGroup = new TokenGroup();
@@ -516,7 +531,7 @@ namespace XmlQuery
 
                         pos++;
                     }
-                    else if (tokenGroup.Type == TokenGroup.TokenGroupType.EndTag && tokenGroup.Name == CurrentTag.NamespaceAndName)
+                    else if (tokenGroup.Type == TokenGroup.TokenGroupType.EndTag )
                     {
                         pos++;
                         return pos;
