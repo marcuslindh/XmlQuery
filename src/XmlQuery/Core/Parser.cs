@@ -8,6 +8,11 @@ namespace XmlQuery
     {
         public static class Parser
         {
+            /// <summary>
+            /// Parse the xml string into tokens
+            /// </summary>
+            /// <param name="xml"></param>
+            /// <returns></returns>
             public static List<Token> Parse(string xml)
             {
                 List<Token> tokens = new List<Token>();
@@ -109,6 +114,11 @@ namespace XmlQuery
                 return tokens;
             }
 
+            /// <summary>
+            /// Categorize tokens by more specific types
+            /// </summary>
+            /// <param name="tokens"></param>
+            /// <returns></returns>
             public static List<Token> CategorizeTokens(List<Token> tokens)
             {
                 int pos = 0;
@@ -268,6 +278,11 @@ namespace XmlQuery
                 return tokens;
             }
 
+            /// <summary>
+            /// group tokens into groups
+            /// </summary>
+            /// <param name="tokens"></param>
+            /// <returns></returns>
             public static List<TokenGroup> GroupTokens(List<Token> tokens)
             {
                 List<TokenGroup> tokenGroups = new List<TokenGroup>();
@@ -380,6 +395,11 @@ namespace XmlQuery
                 return tokenGroups;
             }
 
+            /// <summary>
+            /// Get the document tree from the token groups
+            /// </summary>
+            /// <param name="tokenGroups"></param>
+            /// <returns></returns>
             public static Element GetDocument(List<TokenGroup> tokenGroups)
             {
                 Element doc = new Element() { Name = "Document" };

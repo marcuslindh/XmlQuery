@@ -6,6 +6,12 @@ namespace XmlQuery.Core
 {
     public class QueryEngine
     {
+        /// <summary>
+        /// Query the document by CSS selector
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public static List<Element> Query(Element document, string query)
         {
             List<QueryEngineToken> tokens = ParseQuery(query);
@@ -146,6 +152,12 @@ namespace XmlQuery.Core
             return elements;
         }
 
+        /// <summary>
+        /// Walk the tree and Search for elements that matches the CSS selector
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="actionOnElement"></param>
+        /// <returns></returns>
         private static List<Element> TreeWalker(Element element, ActionOnElement actionOnElement)
         {
             List<Element> elements = new List<Element>();
@@ -179,6 +191,11 @@ namespace XmlQuery.Core
             return elements;
         }
 
+        /// <summary>
+        /// Parse the CSS selector to tokens
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public static List<QueryEngineToken> ParseQuery(string query)
         {
             List<QueryEngineToken> tokens = new List<QueryEngineToken>();
@@ -267,6 +284,11 @@ namespace XmlQuery.Core
             return tokens;
         }
 
+        /// <summary>
+        /// Group the tokens to groups
+        /// </summary>
+        /// <param name="tokens"></param>
+        /// <returns></returns>
         public static List<QueryEngineGroupToken> GroupTokens(List<QueryEngineToken> tokens)
         {
             List<QueryEngineGroupToken> queryEngineGroupToken = new List<QueryEngineGroupToken>();
@@ -415,6 +437,9 @@ namespace XmlQuery.Core
 
     public class ActionOnElement
     {
+        /// <summary>
+        /// Match only the first element
+        /// </summary>
         public bool FirstMatch { get; set; } = false;
         public Dictionary<string, Func<Element, bool>> Func { get; set; } = new Dictionary<string, Func<Element, bool>>();
 
