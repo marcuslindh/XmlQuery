@@ -134,114 +134,6 @@ namespace XmlQuery
 
                             pos++;
                         }
-                        else if (tokens[pos + 1].value.StartsWith("![CDATA["))
-                        {
-                            tokens.RemoveRange(pos, 1);
-
-                            token = tokens[pos];
-
-                            token.type = Token.TokenType.StartCData;
-
-                            string cdataString = tokens[pos].value.Substring(8);
-
-                            bool hasCDataEnd = false;
-                            if (cdataString.EndsWith("]]"))
-                            {
-                                cdataString = cdataString.Substring(0, cdataString.Length - 2);
-                                token.value = "<![CDATA[";
-                                token.type = Token.TokenType.StartCData;
-
-                                tokens.RemoveRange(pos + 1, 1);
-
-                                Token cdataEnd = new Token()
-                                {
-                                    pos = token.pos + 8 + cdataString.Length,
-                                    value = "]]>",
-                                    type = Token.TokenType.EndCData
-                                };
-                                tokens.Insert(pos + 1, cdataEnd);
-
-                                hasCDataEnd = true;
-                            }
-                            else
-                            {
-                                token.value = "<![CDATA[";
-                                token.type = Token.TokenType.StartCData;
-                            }
-
-
-                            if (hasCDataEnd)
-                            {
-                                Token cdata = new Token()
-                                {
-                                    pos = token.pos + 8,
-                                    value = cdataString,
-                                    type = Token.TokenType.CDataValue
-                                };
-                                tokens.Insert(pos + 1, cdata);
-                            }
-                            else
-                            {
-                                List<Token> cdataTokens = new List<Token>();
-                                int localpos = pos + 1;
-                                while (localpos < tokens.Count && tokens[localpos].value.EndsWith("]]") == false)
-                                {
-                                    cdataTokens.Add(tokens[localpos]);
-                                    localpos++;
-                                }
-
-                                if (tokens[localpos].value == "]]")
-                                {
-                                    tokens[localpos].type = Token.TokenType.EndCData;
-
-                                    tokens.RemoveRange(localpos + 1, 1);
-                                }
-                                else
-                                {
-                                    //ta bort ]] från sista token
-                                    tokens[localpos].value = tokens[localpos].value.Substring(0, tokens[localpos].value.Length - 2);
-
-                                    cdataTokens.Add(tokens[localpos]);
-
-                                    tokens.RemoveRange(localpos + 1, 1);
-
-                                    Token cdataEnd = new Token()
-                                    {
-                                        pos = token.pos + 8 + cdataString.Length,
-                                        value = "]]>",
-                                        type = Token.TokenType.EndCData
-                                    };
-                                    tokens.Insert(pos + 1, cdataEnd);
-                                }
-
-                                cdataString = cdataString + string.Join("", cdataTokens.Select(t => t.value));
-
-
-                                Token cdata = new Token()
-                                {
-                                    pos = token.pos + 8,
-                                    value = cdataString,
-                                    type = Token.TokenType.CDataValue
-                                };
-                                tokens.Insert(pos + 1, cdata);
-
-                                tokens.RemoveRange(pos + 2, cdataTokens.Count + 1);
-
-                            }
-
-                            if (hasCDataEnd == false)
-                            {
-                                Token cdataEnd = new Token()
-                                {
-                                    pos = token.pos + 8 + cdataString.Length,
-                                    value = "]]>",
-                                    type = Token.TokenType.EndCData
-                                };
-
-                                tokens.Insert(pos + 2, cdataEnd);
-                            }
-
-                        }
                         else
                         {
                             token.type = Token.TokenType.StartTag;
@@ -249,9 +141,60 @@ namespace XmlQuery
                             pos++;
                             token = tokens[pos];
 
-                            if (token.type == Token.TokenType.ContiguousCharacters)
+                            if (token.type == Token.TokenType.ContiguousCharacters && token.value.StartsWith("![CDATA[") == false)
                             {
                                 token.type = Token.TokenType.TagName;
+                            }
+                            else if (token.type == Token.TokenType.ContiguousCharacters && token.value.StartsWith("![CDATA["))
+                            {
+
+                                string cdataString = token.value.Substring(8);
+
+                                int _pos = pos + 1;
+
+                                while (_pos < tokens.Count && cdataString.EndsWith("]]") == false)
+                                {
+                                    cdataString += tokens[_pos].value;
+                                    _pos++;
+                                }
+
+                                if (cdataString.EndsWith("]]"))
+                                {
+                                    cdataString = cdataString.Substring(0, cdataString.Length - 2);
+                                }
+
+                                Token t2 = tokens[pos];
+                                Token t3 = tokens[_pos];
+
+                                for (int i = 0; i < (_pos + 1) - (pos - 1); i++)
+                                {
+                                    tokens.RemoveAt(pos - 1);
+                                }
+
+                                Token startCData = new Token()
+                                {
+                                    pos = pos - 1,
+                                    value = "<![CDATA[",
+                                    type = Token.TokenType.StartCData
+                                };
+                                tokens.Insert(pos - 1, startCData);
+
+                                Token cDataValue = new Token()
+                                {
+                                    pos = pos,
+                                    value = cdataString,
+                                    type = Token.TokenType.CDataValue
+                                };
+                                tokens.Insert(pos, cDataValue);
+
+                                Token endCData = new Token()
+                                {
+                                    pos = pos + 1,
+                                    value = "]]>",
+                                    type = Token.TokenType.EndCData
+                                };
+                                tokens.Insert(pos + 1, endCData);
+
                             }
 
                         }
@@ -271,6 +214,26 @@ namespace XmlQuery
                             {
                                 token.type = Token.TokenType.AttributValue;
                             }
+                        }
+                        else if (token.value.StartsWith("![CDATA["))
+                        {
+                            //tokens.RemoveRange(pos, 1);
+
+                            token = tokens[pos];
+
+                            token.type = Token.TokenType.StartCData;
+
+                            while (pos < tokens.Count && token.value.EndsWith("]]") == false)
+                            {
+                                pos++;
+                                token = tokens[pos];
+                                token.type = Token.TokenType.CDataValue;
+                            }
+
+                            token = tokens[pos];
+                            token.type = Token.TokenType.EndCData;
+
+                            tokens.RemoveRange(pos + 1, 1);
                         }
                         else if (token.value.Equals("https:", StringComparison.InvariantCultureIgnoreCase) || token.value.Equals("http:", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -393,7 +356,11 @@ namespace XmlQuery
 
                         while (pos < tokens.Count && tokens[pos].type != Token.TokenType.StartTag && tokens[pos].type != Token.TokenType.EndTag)
                         {
-                            tokenGroup.Tokens.Add(tokens[pos]);
+                            if (string.IsNullOrEmpty(tokens[pos].value) == false)
+                            {
+                                tokenGroup.Tokens.Add(tokens[pos]);
+                            }
+
                             pos++;
                         }
 
@@ -522,16 +489,16 @@ namespace XmlQuery
                     {
                         if (CurrentTag != null)
                         {
-                            CurrentTag.Value = string.Join("", tokenGroup.Tokens.Select(x => x.value)).Trim();
+                            CurrentTag.Value += string.Join("", tokenGroup.Tokens.Select(x => x.value)).Trim();
                         }
                         else
                         {
-                            root.Value = string.Join("", tokenGroup.Tokens.Select(x => x.value)).Trim();
+                            root.Value += string.Join("", tokenGroup.Tokens.Select(x => x.value)).Trim();
                         }
 
                         pos++;
                     }
-                    else if (tokenGroup.Type == TokenGroup.TokenGroupType.EndTag )
+                    else if (tokenGroup.Type == TokenGroup.TokenGroupType.EndTag)
                     {
                         pos++;
                         return pos;
