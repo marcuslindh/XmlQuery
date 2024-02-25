@@ -45,6 +45,12 @@ namespace XmlQuery
             return false;
         }
 
+        /// <summary>
+        /// Get attribut value as a specific type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public T GetAttributValueAs<T>(string name) where T : IConvertible
         {
             if (GetAttributValue(name, out string attributValue))
@@ -61,9 +67,24 @@ namespace XmlQuery
             return default(T);
         }
 
+        /// <summary>
+        /// Get all elements that matches the query
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public List<Element> Query(string query)
         {
             return QueryEngine.Query(this, query);
+        }
+
+        /// <summary>
+        /// Get the first element that matches the query
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public Element? QueryFirst(string query)
+        {
+            return QueryEngine.Query(this, query).FirstOrDefault();
         }
 
         public override string ToString()
