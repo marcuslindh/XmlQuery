@@ -14,38 +14,39 @@ namespace XmlQuery.Core
 
             List<Element> elements = new List<Element>();
 
-            List<Filter> filters = new List<Filter>();
+            List<QueryEngineFilter> filters = new List<QueryEngineFilter>();
 
-            Filter filterItem = new Filter();
+            QueryEngineFilter filterItem = new QueryEngineFilter();
 
             ActionOnElement actionOnElement = new ActionOnElement();
-            filterItem.ActionOnElement.Add(actionOnElement);
+
+            bool FirstMatch = false;
 
             foreach (QueryEngineGroupToken groupToken in queryEngineGroupToken)
             {
 
                 if (groupToken.Type == QueryEngineGroupToken.GroupType.Element)
                 {
-
-
                     int pos = 0;
-
-
 
                     while (pos < groupToken.Tokens.Count)
                     {
                         QueryEngineToken token = groupToken.Tokens[pos];
 
-                        if (token.type == QueryEngineToken.TokenType.TagName)
+                        if (token.Type == QueryEngineToken.TokenType.TagName)
                         {
-                            if (pos > 0)
+                         
+                            actionOnElement = new ActionOnElement();
+                            filterItem.ActionOnElement.Add(actionOnElement);                          
+
+                            if (FirstMatch)
                             {
-                                actionOnElement = new ActionOnElement();
-                                filterItem.ActionOnElement.Add(actionOnElement);
+                                actionOnElement.FirstMatch = true;
+                                FirstMatch = false;
                             }
 
 
-                            string tagName = token.value;
+                            string tagName = token.Value;
 
                             if (tagName == "*")
                             {
@@ -66,17 +67,17 @@ namespace XmlQuery.Core
 
                             pos++;
                         }
-                        else if (token.type == QueryEngineToken.TokenType.StartAttributFilter)
+                        else if (token.Type == QueryEngineToken.TokenType.StartAttributFilter)
                         {
                             pos++;
                             token = groupToken.Tokens[pos];
 
-                            string attributName = token.value;
+                            string attributName = token.Value;
 
                             pos++;
                             token = groupToken.Tokens[pos];
 
-                            string attributValue = token.value;
+                            string attributValue = token.Value;
 
                             actionOnElement.Func.Add($"Match Attribut {attributName} = {attributValue}", (element) =>
                             {
@@ -94,12 +95,10 @@ namespace XmlQuery.Core
                             pos++;
                             pos++;
                         }
-                        else if (token.type == QueryEngineToken.TokenType.FirstTagAfterArrow)
+                        else if (token.Type == QueryEngineToken.TokenType.FirstTagAfterArrow)
                         {
-                            actionOnElement = new ActionOnElement();
-                            actionOnElement.FirstMatch = true;
 
-                            filterItem.ActionOnElement.Add(actionOnElement);
+                            FirstMatch = true;
                             pos++;
                         }
 
@@ -111,21 +110,18 @@ namespace XmlQuery.Core
                 else if (groupToken.Type == QueryEngineGroupToken.GroupType.Or)
                 {
                     filters.Add(filterItem);
-                    filterItem = new Filter();
+                    filterItem = new QueryEngineFilter();
                 }
                 else if (groupToken.Type == QueryEngineGroupToken.GroupType.FirstTagAfterArrow)
                 {
-                    actionOnElement = new ActionOnElement();
-                    actionOnElement.FirstMatch = true;
-
-                    filterItem.ActionOnElement.Add(actionOnElement);
+                    FirstMatch = true;
                 }
 
             }
 
             filters.Add(filterItem);
 
-            foreach (Filter filter in filters)
+            foreach (QueryEngineFilter filter in filters)
             {
                 List<Element> filterdElements = new List<Element>();
 
@@ -196,11 +192,11 @@ namespace XmlQuery.Core
 
                 if (c == '>')
                 {
-                    tokens.Add(new QueryEngineToken() { pos = pos, type = QueryEngineToken.TokenType.FirstTagAfterArrow, value = c.ToString() });
+                    tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.FirstTagAfterArrow, Value = c.ToString() });
                 }
                 else if (c == '=')
                 {
-                    tokens.Add(new QueryEngineToken() { pos = pos, type = QueryEngineToken.TokenType.Equal, value = c.ToString() });
+                    tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.Equal, Value = c.ToString() });
                 }
                 else if (c == '"')
                 {
@@ -211,25 +207,25 @@ namespace XmlQuery.Core
                         pos++;
                     }
 
-                    tokens.Add(new QueryEngineToken { pos = start, type = QueryEngineToken.TokenType.AttributValue, value = query.Substring(start, pos - start) });
+                    tokens.Add(new QueryEngineToken { Pos = start, Type = QueryEngineToken.TokenType.AttributValue, Value = query.Substring(start, pos - start) });
                 }
                 else if (c == '[')
                 {
-                    tokens.Add(new QueryEngineToken() { pos = pos, type = QueryEngineToken.TokenType.StartAttributFilter, value = c.ToString() });
+                    tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.StartAttributFilter, Value = c.ToString() });
                     InAttributFilter = true;
                 }
                 else if (c == ']')
                 {
-                    tokens.Add(new QueryEngineToken() { pos = pos, type = QueryEngineToken.TokenType.EndAttributFilter, value = c.ToString() });
+                    tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.EndAttributFilter, Value = c.ToString() });
                     InAttributFilter = false;
                 }
                 else if (c == '*')
                 {
-                    tokens.Add(new QueryEngineToken() { pos = pos, type = QueryEngineToken.TokenType.TagName, value = c.ToString() });
+                    tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.TagName, Value = c.ToString() });
                 }
                 else if (c == '|')
                 {
-                    tokens.Add(new QueryEngineToken() { pos = pos, type = QueryEngineToken.TokenType.Or, value = c.ToString() });
+                    tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.Or, Value = c.ToString() });
                 }
                 else if (c == ' ')
                 {
@@ -245,13 +241,13 @@ namespace XmlQuery.Core
 
                     if (InAttributFilter)
                     {
-                        tokens.Add(new QueryEngineToken { pos = start, type = QueryEngineToken.TokenType.AttributName, value = query.Substring(start, pos - start) });
+                        tokens.Add(new QueryEngineToken { Pos = start, Type = QueryEngineToken.TokenType.AttributName, Value = query.Substring(start, pos - start) });
 
 
                     }
                     else
                     {
-                        tokens.Add(new QueryEngineToken { pos = start, type = QueryEngineToken.TokenType.TagName, value = query.Substring(start, pos - start) });
+                        tokens.Add(new QueryEngineToken { Pos = start, Type = QueryEngineToken.TokenType.TagName, Value = query.Substring(start, pos - start) });
 
                         if (pos < query.Length)
                         {
@@ -277,97 +273,162 @@ namespace XmlQuery.Core
 
             int pos = 0;
 
+            QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
+            groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+
+            queryEngineGroupToken.Add(groupToken);
+
             while (pos < tokens.Count)
             {
                 QueryEngineToken token = tokens[pos];
 
-                if (token.type == QueryEngineToken.TokenType.TagName)
+                if (token.Type == QueryEngineToken.TokenType.TagName)
                 {
-                    QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
-                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
 
-                    groupToken.Tokens.Add(token);
-
-                    queryEngineGroupToken.Add(groupToken);
-
-
-
-                    if (pos + 1 < tokens.Count)
+                    if (groupToken.Type == QueryEngineGroupToken.GroupType.Element && groupToken.Tokens.Count > 0)
                     {
-                        if (tokens[pos + 1].type == QueryEngineToken.TokenType.StartAttributFilter)
-                        {
-                            pos++;
-                            token = tokens[pos];
-
-                            groupToken.Tokens.Add(token);
-
-                            while (pos < tokens.Count && tokens[pos].type != QueryEngineToken.TokenType.EndAttributFilter)
-                            {
-                                pos++;
-                                groupToken.Tokens.Add(tokens[pos]);
-                            }
-                        }
-                        else if (tokens[pos + 1].type == QueryEngineToken.TokenType.TagName)
-                        {
-                            pos++;
-                            token = tokens[pos];
-
-                            groupToken.Tokens.Add(token);
-                        }
+                        groupToken = new QueryEngineGroupToken();
+                        queryEngineGroupToken.Add(groupToken);
                     }
 
+                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+                    groupToken.Tokens.Add(token);
                 }
-                else if (token.type == QueryEngineToken.TokenType.Or)
+                else if (token.Type == QueryEngineToken.TokenType.StartAttributFilter)
                 {
-                    QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
+                    groupToken.Tokens.Add(token);
+
+                    while (pos < tokens.Count && tokens[pos].Type != QueryEngineToken.TokenType.EndAttributFilter)
+                    {
+                        pos++;
+                        groupToken.Tokens.Add(tokens[pos]);
+                    }
+                }
+                else if (token.Type == QueryEngineToken.TokenType.Or)
+                {
+                    groupToken = new QueryEngineGroupToken();
                     groupToken.Type = QueryEngineGroupToken.GroupType.Or;
 
                     groupToken.Tokens.Add(token);
 
                     queryEngineGroupToken.Add(groupToken);
 
+                    groupToken = new QueryEngineGroupToken();
+                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+
+                    queryEngineGroupToken.Add(groupToken);
                 }
-                else if (token.type == QueryEngineToken.TokenType.FirstTagAfterArrow)
+                else if (token.Type == QueryEngineToken.TokenType.FirstTagAfterArrow)
                 {
-                    QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
+                    groupToken = new QueryEngineGroupToken();
                     groupToken.Type = QueryEngineGroupToken.GroupType.FirstTagAfterArrow;
 
                     groupToken.Tokens.Add(token);
 
                     queryEngineGroupToken.Add(groupToken);
 
+                    groupToken = new QueryEngineGroupToken();
+                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+
+                    queryEngineGroupToken.Add(groupToken);
                 }
 
                 pos++;
             }
 
+
+
+            //while (pos < tokens.Count)
+            //{
+            //    QueryEngineToken token = tokens[pos];
+
+            //    if (token.type == QueryEngineToken.TokenType.TagName)
+            //    {
+            //        QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
+            //        groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+
+            //        groupToken.Tokens.Add(token);
+
+            //        queryEngineGroupToken.Add(groupToken);
+
+
+
+            //        if (pos + 1 < tokens.Count)
+            //        {
+            //            if (tokens[pos + 1].type == QueryEngineToken.TokenType.StartAttributFilter)
+            //            {
+            //                pos++;
+            //                token = tokens[pos];
+
+            //                groupToken.Tokens.Add(token);
+
+            //                while (pos < tokens.Count && tokens[pos].type != QueryEngineToken.TokenType.EndAttributFilter)
+            //                {
+            //                    pos++;
+            //                    groupToken.Tokens.Add(tokens[pos]);
+            //                }
+            //            }
+            //            else if (tokens[pos + 1].type == QueryEngineToken.TokenType.TagName)
+            //            {
+            //                pos++;
+            //                token = tokens[pos];
+
+            //                groupToken.Tokens.Add(token);
+            //            }
+            //        }
+
+            //    }
+            //    else if (token.type == QueryEngineToken.TokenType.Or)
+            //    {
+            //        QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
+            //        groupToken.Type = QueryEngineGroupToken.GroupType.Or;
+
+            //        groupToken.Tokens.Add(token);
+
+            //        queryEngineGroupToken.Add(groupToken);
+
+            //    }
+            //    else if (token.type == QueryEngineToken.TokenType.FirstTagAfterArrow)
+            //    {
+            //        QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
+            //        groupToken.Type = QueryEngineGroupToken.GroupType.FirstTagAfterArrow;
+
+            //        groupToken.Tokens.Add(token);
+
+            //        queryEngineGroupToken.Add(groupToken);
+
+            //    }
+
+            //    pos++;
+            //}
+
             return queryEngineGroupToken;
-        }
-
-        public class Filter
-        {
-            public List<ActionOnElement> ActionOnElement { get; set; } = new List<ActionOnElement>();
-
-        }
-
-        public class ActionOnElement
-        {
-            public bool FirstMatch { get; set; } = false;
-            public Dictionary<string, Func<Element, bool>> Func { get; set; } = new Dictionary<string, Func<Element, bool>>();
-
-            public override string ToString()
-            {
-                return $"FirstMatch: {FirstMatch}, {string.Join(", ", Func.Select(x => x.Key))}";
-            }
         }
 
     }
 
+    public class QueryEngineFilter
+    {
+        public List<ActionOnElement> ActionOnElement { get; set; } = new List<ActionOnElement>();
+
+    }
+
+    public class ActionOnElement
+    {
+        public bool FirstMatch { get; set; } = false;
+        public Dictionary<string, Func<Element, bool>> Func { get; set; } = new Dictionary<string, Func<Element, bool>>();
+
+        public override string ToString()
+        {
+            return $"FirstMatch: {FirstMatch}, {string.Join(", ", Func.Select(x => x.Key))}";
+        }
+    }
+
     public class QueryEngineToken
     {
-        public int pos { get; set; } = 0;
-        public string value { get; set; } = "";
-        public TokenType type { get; set; } = TokenType.Unknown;
+        public int Pos { get; set; } = 0;
+        public string Value { get; set; } = "";
+        public TokenType Type { get; set; } = TokenType.Unknown;
 
         public enum TokenType
         {
@@ -385,7 +446,7 @@ namespace XmlQuery.Core
 
         public override string ToString()
         {
-            return $"{pos}: {type} = '{value}'";
+            return $"{Pos}: {Type} = '{Value}'";
         }
     }
 
@@ -408,4 +469,5 @@ namespace XmlQuery.Core
         }
 
     }
+
 }
