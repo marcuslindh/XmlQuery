@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace XmlQuery
 {
@@ -151,35 +152,42 @@ namespace XmlQuery
                             pos++;
                             token = tokens[pos];
 
-                            if (token.type == Token.TokenType.ContiguousCharacters && token.value.StartsWith("![CDATA[") == false)
+                            if (token.type == Token.TokenType.ContiguousCharacters && (token.value[0] != '!' && token.value.StartsWith("![CDATA[") == false))
                             {
                                 token.type = Token.TokenType.TagName;
                             }
-                            else if (token.type == Token.TokenType.ContiguousCharacters && token.value.StartsWith("![CDATA["))
+                            else if (token.type == Token.TokenType.ContiguousCharacters && (token.value[0] == '!' && token.value.StartsWith("![CDATA[")))
                             {
 
-                                string cdataString = token.value.Substring(8);
+                                StringBuilder cdataString = new StringBuilder();
+                                cdataString.Append(token.value.Substring(8));
+
+                                string LastcdataString = token.value.Substring(8);
 
                                 int _pos = pos + 1;
-
-                                while (_pos < tokens.Count && cdataString.EndsWith("]]") == false)
+                                //.EndsWith("]]")
+                                while (_pos < tokens.Count && (LastcdataString.Length >= 2 && LastcdataString[LastcdataString.Length - 1] == ']' && LastcdataString[LastcdataString.Length - 2] == ']'))
                                 {
-                                    cdataString += tokens[_pos].value;
+                                    cdataString.Append(tokens[_pos].value);
+                                    LastcdataString = tokens[_pos].value;
                                     _pos++;
                                 }
 
-                                if (cdataString.EndsWith("]]"))
+                                string CDataValue = cdataString.ToString();
+
+                                if (CDataValue.EndsWith("]]"))
                                 {
-                                    cdataString = cdataString.Substring(0, cdataString.Length - 2);
+                                    CDataValue = CDataValue.Substring(0, cdataString.Length - 2);
                                 }
 
                                 Token t2 = tokens[pos];
                                 Token t3 = tokens[_pos];
 
-                                for (int i = 0; i < (_pos + 1) - (pos - 1); i++)
-                                {
-                                    tokens.RemoveAt(pos - 1);
-                                }
+                                //for (int i = 0; i < (_pos + 1) - (pos - 1); i++)
+                                //{
+                                //    tokens.RemoveAt(pos - 1);
+                                //}
+                                tokens.RemoveRange(pos - 1, ((_pos + 1) - (pos - 1)) - 1);
 
                                 Token startCData = new Token()
                                 {
@@ -192,7 +200,7 @@ namespace XmlQuery
                                 Token cDataValue = new Token()
                                 {
                                     pos = pos,
-                                    value = cdataString,
+                                    value = CDataValue,
                                     type = Token.TokenType.CDataValue
                                 };
                                 tokens.Insert(pos, cDataValue);
@@ -225,7 +233,7 @@ namespace XmlQuery
                                 token.type = Token.TokenType.AttributValue;
                             }
                         }
-                        else if (token.value.StartsWith("![CDATA["))
+                        else if (token.value[0] == '!' && token.value.StartsWith("![CDATA["))
                         {
                             //tokens.RemoveRange(pos, 1);
 
