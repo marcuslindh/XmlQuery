@@ -18,12 +18,13 @@ namespace XmlQuery
                 EndTag,
                 StartAndEndTag,
                 Value,
+                Comment,
                 Unknown
             }
 
             public override string ToString()
             {
-                return $"{Type} {Name}";
+                return $"{Type} {Name} Tokens: {Tokens.Count}";
             }
         }
     }

@@ -26,7 +26,9 @@
                 Url,
                 StartCData,
                 CDataValue,
-                EndCData
+                EndCData,
+                Comment
+                    
             }
 
             public override string ToString()
