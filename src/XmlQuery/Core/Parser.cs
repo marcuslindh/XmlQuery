@@ -7,6 +7,9 @@ namespace XmlQuery
 {
     namespace Core
     {
+        /// <summary>
+        /// XML parser
+        /// </summary>
         public static class Parser
         {
             /// <summary>
@@ -14,7 +17,7 @@ namespace XmlQuery
             /// </summary>
             /// <param name="xml"></param>
             /// <returns></returns>
-            public static List<Token> Parse(string xml)
+            public static List<Token> ParseTokens(string xml)
             {
                 List<Token> tokens = new List<Token>();
                 int pos = 0;
@@ -40,14 +43,11 @@ namespace XmlQuery
                             pos++;
                         }
 
-
                         tokens.Add(new Token { pos = start, type = Token.TokenType.String, value = xml.Substring(start, pos - start) });
 
-                        pos++;
-
-                        if (xml[pos] == '>')
+                        if (xml[pos + 1] == '>')
                         {
-                            tokens.Add(new Token { pos = pos, type = Token.TokenType.EndArrow, value = ">" });
+                            tokens.Add(new Token { pos = pos + 1, type = Token.TokenType.EndArrow, value = ">" });
                             pos++;
                         }
 
@@ -99,7 +99,10 @@ namespace XmlQuery
                             }
                             else
                             {
-                                tokens.Add(new Token { pos = pos, type = Token.TokenType.Character, value = xml[pos].ToString() });
+                                if (c != default(char))
+                                {
+                                    tokens.Add(new Token { pos = pos, type = Token.TokenType.Character, value = xml[pos].ToString() });
+                                }
 
                             }
 
@@ -152,25 +155,48 @@ namespace XmlQuery
                             pos++;
                             token = tokens[pos];
 
-                            if (token.type == Token.TokenType.ContiguousCharacters && (token.value[0] != '!' && token.value.StartsWith("![CDATA[") == false))
+                            if (token.type == Token.TokenType.ContiguousCharacters && (token.value[0] != '!'
+                                && token.value.StartsWith("![CDATA[") == false))
                             {
                                 token.type = Token.TokenType.TagName;
                             }
-                            else if (token.type == Token.TokenType.ContiguousCharacters && (token.value[0] == '!' && token.value.StartsWith("![CDATA[")))
+                            else if (token.type == Token.TokenType.ContiguousCharacters && (token.value[0] == '!'
+                                && token.value.StartsWith("![CDATA[")))
                             {
 
                                 StringBuilder cdataString = new StringBuilder();
-                                cdataString.Append(token.value.Substring(8));
 
                                 string LastcdataString = token.value.Substring(8);
 
-                                int _pos = pos + 1;
-                                //.EndsWith("]]")
-                                while (_pos < tokens.Count && (LastcdataString.Length >= 2 && LastcdataString[LastcdataString.Length - 1] == ']' && LastcdataString[LastcdataString.Length - 2] == ']'))
+                                if (LastcdataString.EndsWith("]]"))
                                 {
-                                    cdataString.Append(tokens[_pos].value);
-                                    LastcdataString = tokens[_pos].value;
+                                    LastcdataString = LastcdataString.Substring(0, LastcdataString.Length - 2);
+                                }
+
+                                cdataString.Append(LastcdataString);
+
+                                int _pos = pos;
+
+                                if (token.value.EndsWith("]]") == false)
+                                {
                                     _pos++;
+
+                                LoopNotFinished:
+                                    while (_pos < tokens.Count && !tokens[_pos].value.EndsWith("]]"))
+                                    {
+                                        cdataString.Append(tokens[_pos].value);
+                                        LastcdataString = tokens[_pos].value;
+                                        _pos++;
+                                    }
+
+                                    cdataString.Append(tokens[_pos].value.Substring(0, tokens[_pos].value.Length - 2));
+
+                                    if (tokens[_pos + 1].type != Token.TokenType.EndArrow)
+                                    {
+                                        _pos++;
+                                        goto LoopNotFinished;
+                                    }
+
                                 }
 
                                 string CDataValue = cdataString.ToString();
@@ -180,14 +206,7 @@ namespace XmlQuery
                                     CDataValue = CDataValue.Substring(0, cdataString.Length - 2);
                                 }
 
-                                Token t2 = tokens[pos];
-                                Token t3 = tokens[_pos];
-
-                                //for (int i = 0; i < (_pos + 1) - (pos - 1); i++)
-                                //{
-                                //    tokens.RemoveAt(pos - 1);
-                                //}
-                                tokens.RemoveRange(pos - 1, ((_pos + 1) - (pos - 1)) - 1);
+                                tokens.RemoveRange(pos - 1, ((_pos + 1) - (pos - 1)) + 1);
 
                                 Token startCData = new Token()
                                 {
@@ -235,8 +254,6 @@ namespace XmlQuery
                         }
                         else if (token.value[0] == '!' && token.value.StartsWith("![CDATA["))
                         {
-                            //tokens.RemoveRange(pos, 1);
-
                             token = tokens[pos];
 
                             token.type = Token.TokenType.StartCData;
@@ -305,6 +322,46 @@ namespace XmlQuery
 
                     if (token.type == Token.TokenType.StartTag)
                     {
+
+                        if (pos + 1 < tokens.Count && tokens[pos + 1].type == Token.TokenType.ContiguousCharacters &&
+                            tokens[pos + 1].value.StartsWith("!--"))
+                        {
+
+                            int start = pos;
+
+                        RestartLoop:
+
+                            while (pos < tokens.Count && tokens[pos].type != Token.TokenType.ContiguousCharacters &&
+                                tokens[pos].value.EndsWith("--") == false)
+                            {
+                                pos++;
+                            }
+
+                            pos++;
+
+                            if (tokens[pos].type == Token.TokenType.EndArrow || pos >= tokens.Count)
+                            {
+                                StringBuilder comment = new StringBuilder();
+
+                                for (int i = start; i < pos; i++)
+                                {
+                                    comment.Append(tokens[i].value);
+                                }
+
+                                tokenGroup = new TokenGroup();
+                                tokenGroup.Type = TokenGroup.TokenGroupType.Comment;
+                                tokenGroup.Tokens.Add(new Token() { type = Token.TokenType.Comment, value = comment.ToString() });
+                                tokenGroups.Add(tokenGroup);
+
+                                continue;
+                            }
+                            else
+                            {
+                                goto RestartLoop;
+                            }
+                        }
+
+
                         tokenGroup = new TokenGroup();
                         tokenGroup.Type = TokenGroup.TokenGroupType.StartTag;
 
@@ -317,7 +374,7 @@ namespace XmlQuery
                             pos++;
                         }
 
-                        if (tokenGroup.Tokens.Where(x => x.type == Token.TokenType.TagName).First().value == "?xml")
+                        if (tokenGroup.Tokens.Where(x => x.type == Token.TokenType.TagName).FirstOrDefault()?.value == "?xml")
                         {
                             tokenGroup.Type = TokenGroup.TokenGroupType.StartAndEndTag;
                         }
@@ -358,6 +415,7 @@ namespace XmlQuery
                     {
                         tokenGroup = new TokenGroup();
                         tokenGroup.Type = TokenGroup.TokenGroupType.Value;
+                        tokenGroup.Name = "CDataValue";
 
                         pos++;
 
@@ -410,7 +468,7 @@ namespace XmlQuery
             /// <returns></returns>
             public static Element GetDocument(List<TokenGroup> tokenGroups)
             {
-                Element doc = new Element() { Name = "Document" };
+                Element doc = new Element() { Name = "Document", IsDocument = true };
 
                 GenerateTagTree(tokenGroups, 0, doc);
 
