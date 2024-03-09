@@ -20,13 +20,13 @@ namespace Tests
 
             List<Element> elements = xmlReader.Query(tagName);
 
-            Assert.True(elements.Count == count);
+            Assert.Equal(count, elements.Count);
         }
 
         [Fact]
         public void QueryParser_TagName()
         {
-            List< QueryEngineToken> tokens = QueryEngine.ParseQuery("rss");
+            List<QueryEngineToken> tokens = QueryEngine.ParseQuery("rss");
 
             Assert.True(tokens.Count == 1);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
@@ -107,7 +107,7 @@ namespace Tests
             Assert.True(tokens[1].Value == "[");
 
             Assert.True(tokens[2].Type == QueryEngineToken.TokenType.AttributName);
-            Assert.True(tokens[2].Value == "type");  
+            Assert.True(tokens[2].Value == "type");
 
             Assert.True(tokens[3].Type == QueryEngineToken.TokenType.AttributValue);
             Assert.True(tokens[3].Value == "application/rss+xml");

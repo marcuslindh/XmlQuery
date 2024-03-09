@@ -1,4 +1,5 @@
 ﻿using XmlQuery;
+using XmlQuery.Core;
 
 namespace Tests
 {
@@ -159,7 +160,7 @@ namespace Tests
 
             List<Element> elements = root.Query(query);
 
-            Assert.True(elements.Count == count);
+            Assert.Equal(count, elements.Count);
 
         }
 
@@ -193,7 +194,11 @@ namespace Tests
             XmlReader xmlReader = new XmlReader();
             xmlReader.Parse(File.ReadAllText(path));
 
-            foreach (Element item in xmlReader.Query("item"))
+            List<Element> items = xmlReader.Query("item");
+
+            Assert.Equal(25, items.Count);
+
+            foreach (Element item in items)
             {
 
                 List<Element> links = item.Query("link");
@@ -336,6 +341,72 @@ namespace Tests
 
             }
         }
+
+        [Fact]
+        public void TestRssAnandtech()
+        {
+            string path = @"I:\Temp\19\anandtech.com\ABC886DF1B20DE50D645457CA95D2A735866A4CA.xml";
+            XmlReader xmlReader = new XmlReader();
+            xmlReader.Parse(File.ReadAllText(path));
+
+            foreach (Element item in xmlReader.Query("item"))
+            {
+
+                List<Element> links = item.Query("link");
+
+                Assert.True(links.Count > 0);
+                Assert.NotEmpty(item.Query("title").First().Value);
+
+            }
+        }
+
+        [Fact]
+        public void TestRss2()
+        {
+            XmlReader xmlReader = new XmlReader();
+            //string xml = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "data", "nyaprojekt_se.xml"));
+            //string xml = File.ReadAllText(@"I:\Temp\19\andrewlock.net\145884EB4AF604D110E533BE6012508517BAB58F.xml");
+            //string xml = File.ReadAllText(@"I:\Temp\19\code.blender.org\B6877AE8F1C2D1915612FA184216041335AA9D2C.xml");
+            string xml = File.ReadAllText(@"I:\Temp\19\medium.com\838328CD8FB5539DF34DC7DD841C5332023366A3.xml");
+
+            List<Token> tokens = Parser.ParseTokens(xml);
+
+            File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), "tokens.txt"), tokens.Select(t => t.ToString()));
+
+            tokens = Parser.CategorizeTokens(tokens);
+
+            File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), "CategorizeTokens.txt"), tokens.Select(t => t.ToString()));
+
+            List<TokenGroup> tokenGroups = Parser.GroupTokens(tokens);
+
+            File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), "tokenGroups.txt"), tokenGroups.Select(t => t.ToString()));
+
+            Element Document = Parser.GetDocument(tokenGroups);
+
+            File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory(), "XML.txt"), new string[] { Document.ToXml() });
+
+
+            List<Element> items = QueryEngine.Query(Document, "item");
+
+            Assert.Equal(10, items.Count);
+        }
+
+        [Fact]
+        public void TestNewReader()
+        {
+            string xml = """
+                <item>
+                    <Title type="markdown" count="50"><![CDATA[<h1>test</h1>]]></Title>
+                </item>
+                """;
+
+            XmlReader xmlReader = new XmlReader(xml);         
+
+            Element root = xmlReader.Query("item Title").First();
+
+            Assert.Equal("<h1>test</h1>", root.Value);
+        }
+
 
 
 
