@@ -9,7 +9,7 @@ namespace Tests
             XmlReader xmlReader = new XmlReader();
             xmlReader.Parse(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "data","books.xml")));
 
-            Assert.True(xmlReader.Document != null);
+            Assert.NotNull(xmlReader.Document);
         }
 
         [Fact]
@@ -18,7 +18,7 @@ namespace Tests
             XmlReader xmlReader = new XmlReader();
             xmlReader.Parse(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "data", "nyaprojekt_se.xml")));
 
-            Assert.True(xmlReader.Document != null);
+            Assert.NotNull(xmlReader.Document);
         }
     }
 }

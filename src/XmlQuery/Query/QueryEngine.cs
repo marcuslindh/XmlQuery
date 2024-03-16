@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace XmlQuery.Core
+﻿namespace XmlQuery.Query
 {
-    public class QueryEngine
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using XmlQuery.Xml;
+
+    /// <summary>
+    /// Query parser and engine for CSS selectors.
+    /// </summary>
+    public static class QueryEngine
     {
         /// <summary>
-        /// Query the document by CSS selector
+        /// Query the document by CSS selector.
         /// </summary>
-        /// <param name="document"></param>
-        /// <param name="query"></param>
-        /// <returns></returns>
+        /// <param name="document">Element to query in.</param>
+        /// <param name="query">css selecter.</param>
+        /// <returns>Elements that matches css selector.</returns>
         public static List<Element> Query(Element document, string query)
         {
             List<QueryEngineToken> tokens = ParseQuery(query);
 
-            List<QueryEngineGroupToken> queryEngineGroupToken = GroupTokens(tokens);
+            List<QueryEngineTokenGroup> queryEngineGroupToken = GroupTokens(tokens);
 
             List<Element> elements = new List<Element>();
 
@@ -26,12 +30,11 @@ namespace XmlQuery.Core
 
             ActionOnElement actionOnElement = new ActionOnElement();
 
-            bool FirstMatch = false;
+            bool firstMatch = false;
 
-            foreach (QueryEngineGroupToken groupToken in queryEngineGroupToken)
+            foreach (QueryEngineTokenGroup groupToken in queryEngineGroupToken)
             {
-
-                if (groupToken.Type == QueryEngineGroupToken.GroupType.Element)
+                if (groupToken.Type == QueryEngineTokenGroup.GroupType.Element)
                 {
                     int pos = 0;
 
@@ -41,20 +44,18 @@ namespace XmlQuery.Core
 
                         if (token.Type == QueryEngineToken.TokenType.TagName)
                         {
-                         
                             actionOnElement = new ActionOnElement();
-                            filterItem.ActionOnElement.Add(actionOnElement);                          
+                            filterItem.ActionOnElement.Add(actionOnElement);
 
-                            if (FirstMatch)
+                            if (firstMatch)
                             {
                                 actionOnElement.FirstMatch = true;
-                                FirstMatch = false;
+                                firstMatch = false;
                             }
-
 
                             string tagName = token.Value;
 
-                            if (tagName == "*")
+                            if (string.Equals(tagName, "*", StringComparison.OrdinalIgnoreCase))
                             {
                                 actionOnElement.Func.Add("Match all tags", (element) => { return true; });
                             }
@@ -62,7 +63,7 @@ namespace XmlQuery.Core
                             {
                                 actionOnElement.Func.Add($"Match tag by name {tagName}", (element) =>
                                 {
-                                    if (element.Name == tagName)
+                                    if (string.Equals(element.Name, tagName, StringComparison.OrdinalIgnoreCase))
                                     {
                                         return true;
                                     }
@@ -87,12 +88,10 @@ namespace XmlQuery.Core
 
                             actionOnElement.Func.Add($"Match Attribut {attributName} = {attributValue}", (element) =>
                             {
-                                if (element.Attributs.Exists(x => x.Name == attributName))
+                                if (element.Attributs.Exists(attr => string.Equals(attr.Name, attributName, StringComparison.OrdinalIgnoreCase))
+                                    && element.Attributs.First(attr => attr.Name == attributName).Value == attributValue)
                                 {
-                                    if (element.Attributs.First(x => x.Name == attributName).Value == attributValue)
-                                    {
-                                        return true;
-                                    }
+                                    return true;
                                 }
 
                                 return false;
@@ -103,26 +102,20 @@ namespace XmlQuery.Core
                         }
                         else if (token.Type == QueryEngineToken.TokenType.FirstTagAfterArrow)
                         {
-
-                            FirstMatch = true;
+                            firstMatch = true;
                             pos++;
                         }
-
                     }
-
-
-
                 }
-                else if (groupToken.Type == QueryEngineGroupToken.GroupType.Or)
+                else if (groupToken.Type == QueryEngineTokenGroup.GroupType.Or)
                 {
                     filters.Add(filterItem);
                     filterItem = new QueryEngineFilter();
                 }
-                else if (groupToken.Type == QueryEngineGroupToken.GroupType.FirstTagAfterArrow)
+                else if (groupToken.Type == QueryEngineTokenGroup.GroupType.FirstTagAfterArrow)
                 {
-                    FirstMatch = true;
+                    firstMatch = true;
                 }
-
             }
 
             filters.Add(filterItem);
@@ -148,60 +141,20 @@ namespace XmlQuery.Core
                 elements.AddRange(filterdElements);
             }
 
-
             return elements;
         }
 
         /// <summary>
-        /// Walk the tree and Search for elements that matches the CSS selector
+        /// Parse the CSS selector to tokens.
         /// </summary>
-        /// <param name="element"></param>
-        /// <param name="actionOnElement"></param>
-        /// <returns></returns>
-        private static List<Element> TreeWalker(Element element, ActionOnElement actionOnElement)
-        {
-            List<Element> elements = new List<Element>();
-            foreach (Element item in element.Children)
-            {
-                bool match = true;
-                foreach (KeyValuePair<string, Func<Element, bool>> f in actionOnElement.Func)
-                {
-                    if (f.Value(item) == false)
-                    {
-                        match = false;
-                    }
-
-                }
-
-                if (match)
-                {
-                    elements.Add(item);
-
-                    if (actionOnElement.FirstMatch)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    elements.AddRange(TreeWalker(item, actionOnElement));
-                }
-            }
-
-            return elements;
-        }
-
-        /// <summary>
-        /// Parse the CSS selector to tokens
-        /// </summary>
-        /// <param name="query"></param>
-        /// <returns></returns>
+        /// <param name="query">CSS selector.</param>
+        /// <returns>List of tokens from CSS selector.</returns>
         public static List<QueryEngineToken> ParseQuery(string query)
         {
             List<QueryEngineToken> tokens = new List<QueryEngineToken>();
             int pos = 0;
 
-            bool InAttributFilter = false;
+            bool inAttributFilter = false;
 
             while (pos < query.Length)
             {
@@ -229,12 +182,12 @@ namespace XmlQuery.Core
                 else if (c == '[')
                 {
                     tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.StartAttributFilter, Value = c.ToString() });
-                    InAttributFilter = true;
+                    inAttributFilter = true;
                 }
                 else if (c == ']')
                 {
                     tokens.Add(new QueryEngineToken() { Pos = pos, Type = QueryEngineToken.TokenType.EndAttributFilter, Value = c.ToString() });
-                    InAttributFilter = false;
+                    inAttributFilter = false;
                 }
                 else if (c == '*')
                 {
@@ -246,7 +199,7 @@ namespace XmlQuery.Core
                 }
                 else if (c == ' ')
                 {
-
+                    // skip space
                 }
                 else
                 {
@@ -256,11 +209,9 @@ namespace XmlQuery.Core
                         pos++;
                     }
 
-                    if (InAttributFilter)
+                    if (inAttributFilter)
                     {
                         tokens.Add(new QueryEngineToken { Pos = start, Type = QueryEngineToken.TokenType.AttributName, Value = query.Substring(start, pos - start) });
-
-
                     }
                     else
                     {
@@ -285,18 +236,18 @@ namespace XmlQuery.Core
         }
 
         /// <summary>
-        /// Group the tokens to groups
+        /// Group the tokens to groups.
         /// </summary>
-        /// <param name="tokens"></param>
-        /// <returns></returns>
-        public static List<QueryEngineGroupToken> GroupTokens(List<QueryEngineToken> tokens)
+        /// <param name="tokens">Tokens to group.</param>
+        /// <returns>Token groups.</returns>
+        public static List<QueryEngineTokenGroup> GroupTokens(List<QueryEngineToken> tokens)
         {
-            List<QueryEngineGroupToken> queryEngineGroupToken = new List<QueryEngineGroupToken>();
+            List<QueryEngineTokenGroup> queryEngineGroupToken = new List<QueryEngineTokenGroup>();
 
             int pos = 0;
 
-            QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
-            groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+            QueryEngineTokenGroup groupToken = new QueryEngineTokenGroup();
+            groupToken.Type = QueryEngineTokenGroup.GroupType.Element;
 
             queryEngineGroupToken.Add(groupToken);
 
@@ -306,14 +257,13 @@ namespace XmlQuery.Core
 
                 if (token.Type == QueryEngineToken.TokenType.TagName)
                 {
-
-                    if (groupToken.Type == QueryEngineGroupToken.GroupType.Element && groupToken.Tokens.Count > 0)
+                    if (groupToken.Type == QueryEngineTokenGroup.GroupType.Element && groupToken.Tokens.Count > 0)
                     {
-                        groupToken = new QueryEngineGroupToken();
+                        groupToken = new QueryEngineTokenGroup();
                         queryEngineGroupToken.Add(groupToken);
                     }
 
-                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+                    groupToken.Type = QueryEngineTokenGroup.GroupType.Element;
                     groupToken.Tokens.Add(token);
                 }
                 else if (token.Type == QueryEngineToken.TokenType.StartAttributFilter)
@@ -328,29 +278,29 @@ namespace XmlQuery.Core
                 }
                 else if (token.Type == QueryEngineToken.TokenType.Or)
                 {
-                    groupToken = new QueryEngineGroupToken();
-                    groupToken.Type = QueryEngineGroupToken.GroupType.Or;
+                    groupToken = new QueryEngineTokenGroup();
+                    groupToken.Type = QueryEngineTokenGroup.GroupType.Or;
 
                     groupToken.Tokens.Add(token);
 
                     queryEngineGroupToken.Add(groupToken);
 
-                    groupToken = new QueryEngineGroupToken();
-                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+                    groupToken = new QueryEngineTokenGroup();
+                    groupToken.Type = QueryEngineTokenGroup.GroupType.Element;
 
                     queryEngineGroupToken.Add(groupToken);
                 }
                 else if (token.Type == QueryEngineToken.TokenType.FirstTagAfterArrow)
                 {
-                    groupToken = new QueryEngineGroupToken();
-                    groupToken.Type = QueryEngineGroupToken.GroupType.FirstTagAfterArrow;
+                    groupToken = new QueryEngineTokenGroup();
+                    groupToken.Type = QueryEngineTokenGroup.GroupType.FirstTagAfterArrow;
 
                     groupToken.Tokens.Add(token);
 
                     queryEngineGroupToken.Add(groupToken);
 
-                    groupToken = new QueryEngineGroupToken();
-                    groupToken.Type = QueryEngineGroupToken.GroupType.Element;
+                    groupToken = new QueryEngineTokenGroup();
+                    groupToken.Type = QueryEngineTokenGroup.GroupType.Element;
 
                     queryEngineGroupToken.Add(groupToken);
                 }
@@ -358,141 +308,45 @@ namespace XmlQuery.Core
                 pos++;
             }
 
-
-
-            //while (pos < tokens.Count)
-            //{
-            //    QueryEngineToken token = tokens[pos];
-
-            //    if (token.type == QueryEngineToken.TokenType.TagName)
-            //    {
-            //        QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
-            //        groupToken.Type = QueryEngineGroupToken.GroupType.Element;
-
-            //        groupToken.Tokens.Add(token);
-
-            //        queryEngineGroupToken.Add(groupToken);
-
-
-
-            //        if (pos + 1 < tokens.Count)
-            //        {
-            //            if (tokens[pos + 1].type == QueryEngineToken.TokenType.StartAttributFilter)
-            //            {
-            //                pos++;
-            //                token = tokens[pos];
-
-            //                groupToken.Tokens.Add(token);
-
-            //                while (pos < tokens.Count && tokens[pos].type != QueryEngineToken.TokenType.EndAttributFilter)
-            //                {
-            //                    pos++;
-            //                    groupToken.Tokens.Add(tokens[pos]);
-            //                }
-            //            }
-            //            else if (tokens[pos + 1].type == QueryEngineToken.TokenType.TagName)
-            //            {
-            //                pos++;
-            //                token = tokens[pos];
-
-            //                groupToken.Tokens.Add(token);
-            //            }
-            //        }
-
-            //    }
-            //    else if (token.type == QueryEngineToken.TokenType.Or)
-            //    {
-            //        QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
-            //        groupToken.Type = QueryEngineGroupToken.GroupType.Or;
-
-            //        groupToken.Tokens.Add(token);
-
-            //        queryEngineGroupToken.Add(groupToken);
-
-            //    }
-            //    else if (token.type == QueryEngineToken.TokenType.FirstTagAfterArrow)
-            //    {
-            //        QueryEngineGroupToken groupToken = new QueryEngineGroupToken();
-            //        groupToken.Type = QueryEngineGroupToken.GroupType.FirstTagAfterArrow;
-
-            //        groupToken.Tokens.Add(token);
-
-            //        queryEngineGroupToken.Add(groupToken);
-
-            //    }
-
-            //    pos++;
-            //}
-
             return queryEngineGroupToken;
         }
 
-    }
-
-    public class QueryEngineFilter
-    {
-        public List<ActionOnElement> ActionOnElement { get; set; } = new List<ActionOnElement>();
-
-    }
-
-    public class ActionOnElement
-    {
         /// <summary>
-        /// Match only the first element
+        /// Walk the tree and Search for elements that matches the CSS selector.
         /// </summary>
-        public bool FirstMatch { get; set; } = false;
-        public Dictionary<string, Func<Element, bool>> Func { get; set; } = new Dictionary<string, Func<Element, bool>>();
-
-        public override string ToString()
+        /// <param name="element">Element to traverse the tree in.</param>
+        /// <param name="actionOnElement">All the filters to use to find the elements.</param>
+        /// <returns>matched elements.</returns>
+        private static List<Element> TreeWalker(Element element, ActionOnElement actionOnElement)
         {
-            return $"FirstMatch: {FirstMatch}, {string.Join(", ", Func.Select(x => x.Key))}";
+            List<Element> elements = new List<Element>();
+            foreach (Element item in element.Children)
+            {
+                bool match = true;
+                foreach (KeyValuePair<string, Func<Element, bool>> func in actionOnElement.Func)
+                {
+                    if (func.Value(item) == false)
+                    {
+                        match = false;
+                    }
+                }
+
+                if (match)
+                {
+                    elements.Add(item);
+
+                    if (actionOnElement.FirstMatch)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    elements.AddRange(TreeWalker(item, actionOnElement));
+                }
+            }
+
+            return elements;
         }
     }
-
-    public class QueryEngineToken
-    {
-        public int Pos { get; set; } = 0;
-        public string Value { get; set; } = "";
-        public TokenType Type { get; set; } = TokenType.Unknown;
-
-        public enum TokenType
-        {
-            String,
-            FirstTagAfterArrow,
-            Unknown,
-            Equal,
-            TagName,
-            StartAttributFilter,
-            EndAttributFilter,
-            AttributName,
-            AttributValue,
-            Or
-        }
-
-        public override string ToString()
-        {
-            return $"{Pos}: {Type} = '{Value}'";
-        }
-    }
-
-    public class QueryEngineGroupToken
-    {
-
-        public List<QueryEngineToken> Tokens { get; set; } = new List<QueryEngineToken>();
-        public GroupType Type { get; set; } = GroupType.Element;
-
-        public enum GroupType
-        {
-            Element,
-            Or,
-            FirstTagAfterArrow
-        }
-
-        public override string ToString()
-        {
-            return $"{Type}: {string.Join(", ", Tokens.Select(x => x.ToString()))}";
-        }
-
-    }
-
 }

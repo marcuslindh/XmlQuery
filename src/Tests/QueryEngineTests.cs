@@ -1,5 +1,6 @@
 ﻿using XmlQuery;
-using XmlQuery.Core;
+using XmlQuery.Query;
+using XmlQuery.Xml;
 
 namespace Tests
 {
@@ -28,9 +29,9 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("rss");
 
-            Assert.True(tokens.Count == 1);
+            Assert.Equal(1, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "rss");
+            Assert.Equal("rss", tokens[0].Value);
         }
 
         [Fact]
@@ -38,12 +39,12 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("rss *");
 
-            Assert.True(tokens.Count == 2);
+            Assert.Equal(2, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "rss");
+            Assert.Equal("rss", tokens[0].Value);
 
             Assert.True(tokens[1].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[1].Value == "*");
+            Assert.Equal("*", tokens[1].Value);
         }
 
         [Fact]
@@ -51,15 +52,15 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("rss item title");
 
-            Assert.True(tokens.Count == 3);
+            Assert.Equal(3, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "rss");
+            Assert.Equal("rss", tokens[0].Value);
 
             Assert.True(tokens[1].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[1].Value == "item");
+            Assert.Equal("item", tokens[1].Value);
 
             Assert.True(tokens[2].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[2].Value == "title");
+            Assert.Equal("title", tokens[2].Value);
         }
 
         [Fact]
@@ -67,15 +68,15 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("channel > title");
 
-            Assert.True(tokens.Count == 3);
+            Assert.Equal(3, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "channel");
+            Assert.Equal("channel", tokens[0].Value);
 
             Assert.True(tokens[1].Type == QueryEngineToken.TokenType.FirstTagAfterArrow);
-            Assert.True(tokens[1].Value == ">");
+            Assert.Equal(">", tokens[1].Value);
 
             Assert.True(tokens[2].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[2].Value == "title");
+            Assert.Equal("title", tokens[2].Value);
         }
 
         [Fact]
@@ -83,15 +84,15 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("channel | title");
 
-            Assert.True(tokens.Count == 3);
+            Assert.Equal(3, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "channel");
+            Assert.Equal("channel", tokens[0].Value);
 
             Assert.True(tokens[1].Type == QueryEngineToken.TokenType.Or);
-            Assert.True(tokens[1].Value == "|");
+            Assert.Equal("|", tokens[1].Value);
 
             Assert.True(tokens[2].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[2].Value == "title");
+            Assert.Equal("title", tokens[2].Value);
         }
 
         [Fact]
@@ -99,21 +100,21 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("link[type=\"application/rss+xml\"]");
 
-            Assert.True(tokens.Count == 5);
+            Assert.Equal(5, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "link");
+            Assert.Equal("link", tokens[0].Value);
 
             Assert.True(tokens[1].Type == QueryEngineToken.TokenType.StartAttributFilter);
-            Assert.True(tokens[1].Value == "[");
+            Assert.Equal("[", tokens[1].Value);
 
             Assert.True(tokens[2].Type == QueryEngineToken.TokenType.AttributName);
-            Assert.True(tokens[2].Value == "type");
+            Assert.Equal("type", tokens[2].Value);
 
             Assert.True(tokens[3].Type == QueryEngineToken.TokenType.AttributValue);
-            Assert.True(tokens[3].Value == "application/rss+xml");
+            Assert.Equal("application/rss+xml", tokens[3].Value);
 
             Assert.True(tokens[4].Type == QueryEngineToken.TokenType.EndAttributFilter);
-            Assert.True(tokens[4].Value == "]");
+            Assert.Equal("]", tokens[4].Value);
         }
 
         [Fact]
@@ -121,12 +122,12 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("channel title");
 
-            Assert.True(tokens.Count == 2);
+            Assert.Equal(2, tokens.Count);
             Assert.True(tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[0].Value == "channel");
+            Assert.Equal("channel", tokens[0].Value);
 
             Assert.True(tokens[1].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(tokens[1].Value == "title");
+            Assert.Equal("title", tokens[1].Value);
         }
 
         [Fact]
@@ -134,13 +135,13 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("rss");
 
-            List<QueryEngineGroupToken> groupTokens = QueryEngine.GroupTokens(tokens);
+            List<QueryEngineTokenGroup> groupTokens = QueryEngine.GroupTokens(tokens);
 
-            Assert.True(groupTokens.Count == 1);
-            Assert.True(groupTokens[0].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[0].Tokens.Count == 1);
+            Assert.Equal(1, groupTokens.Count);
+            Assert.True(groupTokens[0].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[0].Tokens.Count);
             Assert.True(groupTokens[0].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[0].Tokens[0].Value == "rss");
+            Assert.Equal("rss", groupTokens[0].Tokens[0].Value);
         }
 
         [Fact]
@@ -148,14 +149,14 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("rss *");
 
-            List<QueryEngineGroupToken> groupTokens = QueryEngine.GroupTokens(tokens);
+            List<QueryEngineTokenGroup> groupTokens = QueryEngine.GroupTokens(tokens);
 
-            Assert.True(groupTokens.Count == 2);
-            Assert.True(groupTokens[0].Type == QueryEngineGroupToken.GroupType.Element);
+            Assert.Equal(2, groupTokens.Count);
+            Assert.True(groupTokens[0].Type == QueryEngineTokenGroup.GroupType.Element);
             Assert.True(groupTokens[0].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[0].Tokens[0].Value == "rss");
+            Assert.Equal("rss", groupTokens[0].Tokens[0].Value);
             Assert.True(groupTokens[1].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[1].Tokens[0].Value == "*");
+            Assert.Equal("*", groupTokens[1].Tokens[0].Value);
         }
 
         [Fact]
@@ -163,23 +164,23 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("channel > title");
 
-            List<QueryEngineGroupToken> groupTokens = QueryEngine.GroupTokens(tokens);
+            List<QueryEngineTokenGroup> groupTokens = QueryEngine.GroupTokens(tokens);
 
-            Assert.True(groupTokens.Count == 3);
-            Assert.True(groupTokens[0].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[0].Tokens.Count == 1);
+            Assert.Equal(3, groupTokens.Count);
+            Assert.True(groupTokens[0].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[0].Tokens.Count);
             Assert.True(groupTokens[0].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[0].Tokens[0].Value == "channel");
+            Assert.Equal("channel", groupTokens[0].Tokens[0].Value);
 
-            Assert.True(groupTokens[1].Type == QueryEngineGroupToken.GroupType.FirstTagAfterArrow);
-            Assert.True(groupTokens[1].Tokens.Count == 1);
+            Assert.True(groupTokens[1].Type == QueryEngineTokenGroup.GroupType.FirstTagAfterArrow);
+            Assert.Equal(1, groupTokens[1].Tokens.Count);
             Assert.True(groupTokens[1].Tokens[0].Type == QueryEngineToken.TokenType.FirstTagAfterArrow);
-            Assert.True(groupTokens[1].Tokens[0].Value == ">");
+            Assert.Equal(">", groupTokens[1].Tokens[0].Value);
 
-            Assert.True(groupTokens[2].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[2].Tokens.Count == 1);
+            Assert.True(groupTokens[2].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[2].Tokens.Count);
             Assert.True(groupTokens[2].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[2].Tokens[0].Value == "title");
+            Assert.Equal("title", groupTokens[2].Tokens[0].Value);
         }
 
         [Fact]
@@ -187,23 +188,23 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("channel | title");
 
-            List<QueryEngineGroupToken> groupTokens = QueryEngine.GroupTokens(tokens);
+            List<QueryEngineTokenGroup> groupTokens = QueryEngine.GroupTokens(tokens);
 
-            Assert.True(groupTokens.Count == 3);
-            Assert.True(groupTokens[0].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[0].Tokens.Count == 1);
+            Assert.Equal(3, groupTokens.Count);
+            Assert.True(groupTokens[0].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[0].Tokens.Count);
             Assert.True(groupTokens[0].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[0].Tokens[0].Value == "channel");
+            Assert.Equal("channel", groupTokens[0].Tokens[0].Value);
 
-            Assert.True(groupTokens[1].Type == QueryEngineGroupToken.GroupType.Or);
-            Assert.True(groupTokens[1].Tokens.Count == 1);
+            Assert.True(groupTokens[1].Type == QueryEngineTokenGroup.GroupType.Or);
+            Assert.Equal(1, groupTokens[1].Tokens.Count);
             Assert.True(groupTokens[1].Tokens[0].Type == QueryEngineToken.TokenType.Or);
-            Assert.True(groupTokens[1].Tokens[0].Value == "|");
+            Assert.Equal("|", groupTokens[1].Tokens[0].Value);
 
-            Assert.True(groupTokens[2].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[2].Tokens.Count == 1);
+            Assert.True(groupTokens[2].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[2].Tokens.Count);
             Assert.True(groupTokens[2].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[2].Tokens[0].Value == "title");
+            Assert.Equal("title", groupTokens[2].Tokens[0].Value);
         }
 
         [Fact]
@@ -211,25 +212,25 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("link[type=\"application/rss+xml\"]");
 
-            List<QueryEngineGroupToken> groupTokens = QueryEngine.GroupTokens(tokens);
+            List<QueryEngineTokenGroup> groupTokens = QueryEngine.GroupTokens(tokens);
 
-            Assert.True(groupTokens.Count == 1);
-            Assert.True(groupTokens[0].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[0].Tokens.Count == 5);
+            Assert.Equal(1, groupTokens.Count);
+            Assert.True(groupTokens[0].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(5, groupTokens[0].Tokens.Count);
             Assert.True(groupTokens[0].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[0].Tokens[0].Value == "link");
+            Assert.Equal("link", groupTokens[0].Tokens[0].Value);
 
             Assert.True(groupTokens[0].Tokens[1].Type == QueryEngineToken.TokenType.StartAttributFilter);
-            Assert.True(groupTokens[0].Tokens[1].Value == "[");
+            Assert.Equal("[", groupTokens[0].Tokens[1].Value);
 
             Assert.True(groupTokens[0].Tokens[2].Type == QueryEngineToken.TokenType.AttributName);
-            Assert.True(groupTokens[0].Tokens[2].Value == "type");
+            Assert.Equal("type", groupTokens[0].Tokens[2].Value);
 
             Assert.True(groupTokens[0].Tokens[3].Type == QueryEngineToken.TokenType.AttributValue);
-            Assert.True(groupTokens[0].Tokens[3].Value == "application/rss+xml");
+            Assert.Equal("application/rss+xml", groupTokens[0].Tokens[3].Value);
 
             Assert.True(groupTokens[0].Tokens[4].Type == QueryEngineToken.TokenType.EndAttributFilter);
-            Assert.True(groupTokens[0].Tokens[4].Value == "]");
+            Assert.Equal("]", groupTokens[0].Tokens[4].Value);
         }
 
         [Fact]
@@ -237,18 +238,18 @@ namespace Tests
         {
             List<QueryEngineToken> tokens = QueryEngine.ParseQuery("channel title");
 
-            List<QueryEngineGroupToken> groupTokens = QueryEngine.GroupTokens(tokens);
+            List<QueryEngineTokenGroup> groupTokens = QueryEngine.GroupTokens(tokens);
 
-            Assert.True(groupTokens.Count == 2);
-            Assert.True(groupTokens[0].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[0].Tokens.Count == 1);
+            Assert.Equal(2, groupTokens.Count);
+            Assert.True(groupTokens[0].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[0].Tokens.Count);
             Assert.True(groupTokens[0].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[0].Tokens[0].Value == "channel");
+            Assert.Equal("channel", groupTokens[0].Tokens[0].Value);
 
-            Assert.True(groupTokens[1].Type == QueryEngineGroupToken.GroupType.Element);
-            Assert.True(groupTokens[1].Tokens.Count == 1);
+            Assert.True(groupTokens[1].Type == QueryEngineTokenGroup.GroupType.Element);
+            Assert.Equal(1, groupTokens[1].Tokens.Count);
             Assert.True(groupTokens[1].Tokens[0].Type == QueryEngineToken.TokenType.TagName);
-            Assert.True(groupTokens[1].Tokens[0].Value == "title");
+            Assert.Equal("title", groupTokens[1].Tokens[0].Value);
         }
 
     }

@@ -1,5 +1,7 @@
 ﻿using XmlQuery;
-using XmlQuery.Core;
+using XmlQuery.Parsing;
+using XmlQuery.Query;
+using XmlQuery.Xml;
 
 namespace Tests
 {
@@ -293,13 +295,13 @@ namespace Tests
             XmlReader xmlReader = new XmlReader();
             xmlReader.Parse(xml);
 
-            Assert.True(xmlReader.Query("item").Count == 2);
+            Assert.Equal(2, xmlReader.Query("item").Count);
 
             foreach (Element item in xmlReader.Query("item"))
             {
                 List<Element> link = item.Query("link");
 
-                Assert.True(link.Count == 1);
+                Assert.Equal(1, link.Count);
 
             }
         }
@@ -337,7 +339,7 @@ namespace Tests
             {
                 Element link = item.QueryFirst("link");
 
-                Assert.True(link.Value == "https://andrewlock.net/8-ways-to-set-the-urls-for-an-aspnetcore-app/");
+                Assert.Equal("https://andrewlock.net/8-ways-to-set-the-urls-for-an-aspnetcore-app/", link.Value);
 
             }
         }
