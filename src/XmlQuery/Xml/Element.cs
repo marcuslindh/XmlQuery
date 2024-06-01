@@ -18,6 +18,11 @@
         public bool HasName => !string.IsNullOrEmpty(this.Name);
 
         /// <summary>
+        /// Gets a value indicating whether the element children or a value.
+        /// </summary>
+        public bool IsEmpty => this.Children.Count == 0 && string.IsNullOrEmpty(this.Value);
+
+        /// <summary>
         /// Gets or sets the name of the element.
         /// </summary>
         public string Name { get; set; } = string.Empty;
@@ -47,6 +52,11 @@
         /// Gets or sets the attributs on the element.
         /// </summary>
         public List<Attribut> Attributs { get; set; } = new List<Attribut>();
+
+        /// <summary>
+        /// Gets a value indicating whether the element has attributs.
+        /// </summary>
+        public bool HasAttributs => this.Attributs.Count > 0;
 
         /// <summary>
         /// Gets or sets the children of the element.
@@ -159,6 +169,18 @@
         public Element? QueryFirst([NotNull] string query)
         {
             return QueryEngine.Query(this, query).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Get the first element that matches the query.
+        /// </summary>
+        /// <param name="query">CSS selecter.</param>
+        /// <param name="element">Element that matches css selector.</param>
+        /// <returns>return true if element exist.</returns>
+        public bool QueryFirst([NotNull] string query, [NotNullWhen(true)] out Element element)
+        {
+            element = QueryEngine.Query(this, query).FirstOrDefault();
+            return element != null;
         }
 
         /// <summary>
