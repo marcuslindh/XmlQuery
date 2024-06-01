@@ -5,6 +5,18 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <PackageId>XmlQuery</PackageId>
+    <Title>XmlQuery</Title>
+    <PackageProjectUrl>https://github.com/marcuslindh/XmlQuery</PackageProjectUrl>
+    <Description>XmlQuery works similarly to the JavaScript DOM API. This library reads XML documents in the same way as HTML documents. If the XML document is incorrect or corrupt, the library ignores the errors and continues reading.</Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/marcuslindh/XmlQuery</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>XmlReader;xml;reader;css selectors</PackageTags>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Company>Marcus Lindh</Company>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,5 +41,20 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Docs\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="Copy $(ProjectDir)..\..\README.md $(ProjectDir)\README.md" />
+  </Target>
 
 </Project>
