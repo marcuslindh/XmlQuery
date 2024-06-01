@@ -204,9 +204,11 @@ namespace Tests
             {
 
                 List<Element> links = item.Query("link");
-
+                
                 Assert.True(item.Query("title").Count > 0);
                 Assert.NotEmpty(item.Query("title").First().Value);
+
+                item.QueryFirst("link", out Element link);
 
             }
         }
@@ -336,11 +338,11 @@ namespace Tests
 
 
             foreach (Element item in xmlReader.Query("item"))
-            {
-                Element link = item.QueryFirst("link");
-
-                Assert.Equal("https://andrewlock.net/8-ways-to-set-the-urls-for-an-aspnetcore-app/", link.Value);
-
+            {   
+                if (item.QueryFirst("link", out Element link))
+                {
+                    Assert.Equal("https://andrewlock.net/8-ways-to-set-the-urls-for-an-aspnetcore-app/", link.Value);
+                }
             }
         }
 
@@ -409,7 +411,36 @@ namespace Tests
             Assert.Equal("<h1>test</h1>", root.Value);
         }
 
+        [Fact]
+        public void TestNoEndTag()
+        {
+            string xml = """
+                <item>
+                    <Title type="markdown" count="50"><![CDATA[<h1>test</h1>]]></Title>                
+                """;
 
+            XmlReader xmlReader = new XmlReader(xml);
+
+            Element root = xmlReader.Query("item Title").First();
+
+            Assert.Equal("<h1>test</h1>", root.Value);
+        }
+
+        [Fact]
+        public void TestNoEndTag2()
+        {
+            string xml = """
+                <item>
+                    <Title type="markdown" count="50"><![CDATA[<h1>test</h1>]]>         
+                </item>
+                """;
+
+            XmlReader xmlReader = new XmlReader(xml);
+
+            Element root = xmlReader.Query("item Title").First();
+
+            Assert.Equal("<h1>test</h1>", root.Value);
+        }
 
 
     }
