@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--created on 2021-06-20 20:01:47 - tinyMediaManager 4.1.6-->
+<tvshow>
+  <title>Good Witch</title>
+  <originaltitle>Good Witch</originaltitle>
+  <showtitle>Good Witch</showtitle>
+  <sorttitle/>
+  <year>2015</year>
+  <rating>7.3</rating>
+  <userrating>0.0</userrating>
+  <votes>0</votes>
+  <outline/>
+  <plot>Cassie Nightingale, Middleton’s favorite enchantress, and her young-teenage daughter Grace, who shares that same special intuition as her mom, welcome Dr. Sam Radford and his son to town. When the New York transplants move in next to the Grey House, they are immediately spellbound by the mother-daughter duo next door, but Sam and Cassie quickly find they may not see eye to eye. With her signature charm, Cassie attempts to bring everyone together, ensuring all of Middleton is in for new changes, big surprises and, of course, a little bit of magic!
+
+"Good Witch” is based on Bell’s beloved character Cassie, the raven-haired enchantress who kept audiences spellbound for seven installments of Hallmark Channel's longest-running and highest-rated original movie franchise of all time.</plot>
+  <tagline/>
+  <runtime>43</runtime>
+  <thumb aspect="poster">https://image.tmdb.org/t/p/original/c5B9CdRs9MY6Fgknv5uZQKWtl6F.jpg</thumb>
+  <thumb aspect="banner">https://assets.fanart.tv/fanart/tv/289855/tvposter/good-witch-552ff3724b9a2.jpg</thumb>
+  <namedseason number="0">Specials</namedseason>
+  <thumb aspect="poster" season="0" type="season">https://image.tmdb.org/t/p/original/k4IoZFCNX9VgrNVxjc7RakLho31.jpg</thumb>
+  <thumb aspect="poster" season="1" type="season">https://image.tmdb.org/t/p/original/vusOWu9dDavbthi26h6fOgfnLOz.jpg</thumb>
+  <thumb aspect="poster" season="2" type="season">https://image.tmdb.org/t/p/w500/eheqlJ86AgfrbkeCGqyHdiz33b5.jpg</thumb>
+  <thumb aspect="poster" season="3" type="season">https://image.tmdb.org/t/p/original/4aSXs7EyQk7B9qIjIQy5LEEIH1M.jpg</thumb>
+  <thumb aspect="poster" season="4" type="season">https://image.tmdb.org/t/p/original/eRJZAHAlV391jN47W4Lb4NzrGHx.jpg</thumb>
+  <thumb aspect="poster" season="5" type="season">https://image.tmdb.org/t/p/w500/uoZv2dlk0dnrAbS3cf74iynwtO3.jpg</thumb>
+  <thumb aspect="poster" season="6" type="season">https://image.tmdb.org/t/p/w500/kdpN3B85Sgh9VUMOxr1PhGm8GCO.jpg</thumb>
+  <thumb aspect="poster" season="7" type="season">https://image.tmdb.org/t/p/w500/FRthbnY1NaoOzBaB66YcMo8h8M.jpg</thumb>
+  <fanart>
+    <thumb>https://image.tmdb.org/t/p/w1280/fbvPtwI6yu5W0scPpXdsOTZsH7t.jpg</thumb>
+  </fanart>
+  <mpaa>US:TV-G</mpaa>
+  <certification>US:TV-G</certification>
+  <episodeguide>
+    <url cache="auth.json" post="yes">https://api.thetvdb.com/login?{"apikey":"439DFEBA9D3059C6","id":289855}|Content-Type=application/json</url>
+  </episodeguide>
+  <id>289855</id>
+  <imdbid>tt3906732</imdbid>
+  <tmdbid>61864</tmdbid>
+  <uniqueid default="false" type="imdb">tt3906732</uniqueid>
+  <uniqueid default="false" type="zap2it">EP02100478</uniqueid>
+  <uniqueid default="true" type="tvdb">289855</uniqueid>
+  <uniqueid default="false" type="tmdb">61864</uniqueid>
+  <uniqueid default="false" type="tvrage">41099</uniqueid>
+  <premiered>2015-02-28</premiered>
+  <status>Continuing</status>
+  <watched>false</watched>
+  <playcount/>
+  <genre>Comedy</genre>
+  <genre>Drama</genre>
+  <genre>Science Fiction</genre>
+  <studio>Whizbang Films</studio>
+  <country>United States</country>
+  <tag>witch</tag>
+  <actor>
+    <name>Catherine Bell</name>
+    <role>Cassie Nightingale</role>
+    <thumb>https://image.tmdb.org/t/p/h632/kNJpj79JHdbz1T8gaSBSdYJhMZq.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/4493</profile>
+    <tmdbid>4493</tmdbid>
+  </actor>
+  <actor>
+    <name>James Denton</name>
+    <role>Dr. Sam Radford</role>
+    <thumb>https://image.tmdb.org/t/p/h632/41Es4qDy5HQjG5XZ4A85Db4vcIG.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/11153</profile>
+    <tmdbid>11153</tmdbid>
+  </actor>
+  <actor>
+    <name>Catherine Disher</name>
+    <role>Martha Endicott Tinsdale</role>
+    <thumb>https://image.tmdb.org/t/p/h632/eGhy61rRUoEw8QiVehbOy04q7ZY.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/31187</profile>
+    <tmdbid>31187</tmdbid>
+  </actor>
+  <actor>
+    <name>Sarah Power</name>
+    <role>Abigail Pershing</role>
+    <thumb>https://image.tmdb.org/t/p/h632/8VnpMflxnGpqR1jWu4NuUcWdziV.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/76696</profile>
+    <tmdbid>76696</tmdbid>
+  </actor>
+  <actor>
+    <name>Rhys Matthew Bond</name>
+    <role>Nick Radford</role>
+    <thumb>https://image.tmdb.org/t/p/h632/bXoXCwCeHu2wszYk5vlITWWSmKd.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/1412530</profile>
+    <tmdbid>1412530</tmdbid>
+  </actor>
+  <trailer/>
+  <dateadded>2019-12-24 01:46:07</dateadded>
+  <!--tinyMediaManager meta data-->
+  <user_note/>
+</tvshow>

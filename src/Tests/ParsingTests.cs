@@ -31,21 +31,35 @@ namespace Tests
 
             foreach (XmlQuery.Xml.Element tvshow in xmlReader.Query("tvshow"))
             {
-                string title = tvshow.QueryValue("title");
-                string showtitle = tvshow.QueryValue("showtitle");
-                ushort year = Convert.ToUInt16(tvshow.QueryValue("year"));
-                decimal rating = Convert.ToDecimal(tvshow.QueryValue("rating"));
-                decimal userrating = Convert.ToDecimal(tvshow.QueryValue("userrating"));
-                ushort votes = Convert.ToUInt16(tvshow.QueryValue("votes"));
-                string plot = tvshow.QueryValue("plot");
-                byte runtime = Convert.ToByte(tvshow.QueryValue("runtime"));
-                uint id = Convert.ToUInt32(tvshow.QueryValue("id"));
-                string imdbid = tvshow.QueryValue("imdbid");
-                DateTime premiered = Convert.ToDateTime(tvshow.QueryValue("premiered"));
-                string status = tvshow.QueryValue("status");
-                bool watched = Convert.ToBoolean(tvshow.QueryValue("watched"));
-                string playcount = tvshow.QueryValue("playcount");
-                string dateadded = tvshow.QueryValue("dateadded");
+                Assert.NotEmpty(tvshow.QueryValue("title"));
+                Assert.NotEmpty(tvshow.QueryValue("showtitle"));
+                Assert.True(Convert.ToUInt16(tvshow.QueryValue("year")) > 0);
+                Assert.NotEmpty(tvshow.QueryValue("plot"));
+                Assert.Equal(0, int.Parse(tvshow.QueryValue("runtime")));
+                Assert.NotEmpty(tvshow.QueryValue("premiered"));
+            }
+        }
+
+        [Fact]
+        public void ParsingTvShow2()
+        {
+            XmlReader xmlReader = new XmlReader();
+            xmlReader.Parse(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "data", "tvshow2.nfo")));
+
+            Assert.NotNull(xmlReader.Document);
+
+            foreach (XmlQuery.Xml.Element tvshow in xmlReader.Query("tvshow"))
+            {
+                Assert.NotEmpty(tvshow.QueryValue("title"));
+                Assert.NotEmpty(tvshow.QueryValue("showtitle"));
+                Assert.True(Convert.ToUInt16(tvshow.QueryValue("year")) > 0);
+                Assert.NotEmpty(tvshow.QueryValue("plot"));
+                Assert.Equal(43, int.Parse(tvshow.QueryValue("runtime")));
+
+                string thumb = tvshow.QueryFirst("thumb").Value;
+
+                Assert.Equal("https://image.tmdb.org/t/p/original/c5B9CdRs9MY6Fgknv5uZQKWtl6F.jpg", thumb);
+                Assert.NotEmpty(tvshow.QueryValue("premiered"));
             }
         }
     }
