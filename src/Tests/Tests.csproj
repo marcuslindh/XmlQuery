@@ -38,6 +38,9 @@
     <None Update="data\nyaprojekt_se.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\tvshow.nfo">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

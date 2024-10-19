@@ -572,6 +572,10 @@
                     pos++;
                     return pos;
                 }
+                else if (tokenGroup.Type == TokenGroup.TokenGroupType.Comment)
+                {
+                    pos++;
+                }
             }
 
             return pos;

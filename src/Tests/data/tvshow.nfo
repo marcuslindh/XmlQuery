@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--created on 2024-10-19 13:50:05 - tinyMediaManager 4.3.16-->
+<tvshow>
+  <title>The Soul Man</title>
+  <originaltitle>The Soul Man</originaltitle>
+  <showtitle>The Soul Man</showtitle>
+  <sorttitle/>
+  <year>2012</year>
+  <rating>5.8</rating>
+  <userrating>0</userrating>
+  <votes>0</votes>
+  <outline/>
+  <plot>R&amp;amp;B superstar-turned-minister Reverend Boyce "The Voice" Ballentine was living the high life in Las Vegas at the top of the music charts when he gets the calling to go from soul singer to soul saver. Relocating to St. Louis with his wife, Lolli and his daughter, Lyric to take over the preaching duties in his father's church, his family is not exactly eager to give up the fabulous superstar life for a humble one.</plot>
+  <tagline/>
+  <runtime>0</runtime>
+  <thumb aspect="poster">https://image.tmdb.org/t/p/original/brg4FYyi3TOL5i5kXESLaXmxrbt.jpg</thumb>
+  <thumb aspect="poster" season="1" type="season">http://thetvdb.com/banners/seasons/257381-1.jpg</thumb>
+  <fanart>
+    <thumb>http://image.tmdb.org/t/p/w1280/mwX1ysdHp8URoGIwLhSRSrpTH9D.jpg</thumb>
+  </fanart>
+  <mpaa>US:TV-PG</mpaa>
+  <certification>US:TV-PG</certification>
+  <episodeguide>{"imdb":"tt2400129","zap2it":"EP01523784","tvdb":"257381","tmdb":"42992","tvrage":"31547"}</episodeguide>
+  <id>257381</id>
+  <imdbid>tt2400129</imdbid>
+  <tmdbid>42992</tmdbid>
+  <uniqueid default="false" type="imdb">tt2400129</uniqueid>
+  <uniqueid default="false" type="zap2it">EP01523784</uniqueid>
+  <uniqueid default="true" type="tvdb">257381</uniqueid>
+  <uniqueid default="false" type="tmdb">42992</uniqueid>
+  <uniqueid default="false" type="tvrage">31547</uniqueid>
+  <premiered>2012-06-20</premiered>
+  <status>Canceled</status>
+  <watched>false</watched>
+  <playcount/>
+  <genre>Comedy</genre>
+  <studio>TV Land</studio>
+  <studio>Hazy Mills Productions</studio>
+  <country>United States</country>
+  <tag>minister</tag>
+  <tag>religion</tag>
+  <tag>spin off</tag>
+  <tag>st. louis, missouri</tag>
+  <tag>sitcom</tag>
+  <actor>
+    <name>Cedric the Entertainer</name>
+    <role>Reverend Boyce 'The Voice' Ballentine</role>
+    <thumb>https://image.tmdb.org/t/p/h632/s6UrY5uofyxXsU5PydWBoLFReK0.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/5726</profile>
+    <tmdbid>5726</tmdbid>
+  </actor>
+  <actor>
+    <name>Niecy Nash-Betts</name>
+    <role>Lolli Ballentine</role>
+    <thumb>https://image.tmdb.org/t/p/h632/1QblRt1zawcjTHrdXyzAwtdXKYl.jpg</thumb>
+    <profile>https://www.themoviedb.org/person/63231</profile>
+    <tmdbid>63231</tmdbid>
+  </actor>
+  <trailer/>
+  <dateadded>2019-12-24 01:43:23</dateadded>
+  <!--tinyMediaManager meta data-->
+  <user_note/>
+</tvshow>
