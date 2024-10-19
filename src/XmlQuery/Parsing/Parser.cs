@@ -37,12 +37,17 @@
                 {
                     pos++;
                     int start = pos;
-                    while (pos < xml.Length && xml[pos] != '"')
+                    while (pos < xml.Length && (xml[pos] != '"' && xml[pos] != '<'))
                     {
                         pos++;
                     }
 
                     tokens.Add(new Token { Pos = start, Type = Token.TokenType.String, Value = xml.Substring(start, pos - start) });
+
+                    if (xml[pos] == '<')
+                    {
+                        tokens.Add(new Token { Pos = pos, Type = Token.TokenType.StartArrow, Value = "<" });
+                    }
 
                     if (xml[pos + 1] == '>')
                     {
